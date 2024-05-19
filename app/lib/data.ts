@@ -11,6 +11,18 @@ import {
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
+const uuidV4Regex =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+class HttpError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode: number) {
+    super(message); // Pass the message to the Error constructor
+    this.statusCode = statusCode;
+  }
+}
+
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
@@ -162,6 +174,11 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   noStore();
+  // if (!uuidV4Regex.test(id)) {
+  //   console.log('Invalid UUID:', id);
+
+  //   throw new HttpError('Invoice not found.', 404);
+  // }
   try {
     const data = await sql<InvoiceForm>`
       SELECT
